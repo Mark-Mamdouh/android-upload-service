@@ -12,7 +12,8 @@ class DefaultLoggerDelegate : UploadServiceLogger.Delegate {
     }
 
     override fun error(component: String, uploadId: String, message: String, exception: Throwable?, logFilePath: String) {
-        val logMessage = "$component - (uploadId: $uploadId) - $message - ${exception?.stackTrace}"
+        val logMessage = "$component - (uploadId: $uploadId) - $message - ${exception?.toString()}\n" +
+                "stacktrace = ${exception?.stackTrace?.map { it.toString() + "\n" }}"
         Log.e(TAG, logMessage, exception)
         writeLogsToFile(logMessage, logFilePath)
     }
