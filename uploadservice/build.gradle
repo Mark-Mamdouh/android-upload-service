@@ -81,6 +81,8 @@ dependencies {
     kapt "androidx.lifecycle:lifecycle-compiler:$androidx_lifecycle_version"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    implementation 'joda-time:joda-time:2.10.6'
 }
 
 apply from: 'https://raw.githubusercontent.com/sky-uk/gradle-maven-plugin/master/gradle-mavenizer.gradle'

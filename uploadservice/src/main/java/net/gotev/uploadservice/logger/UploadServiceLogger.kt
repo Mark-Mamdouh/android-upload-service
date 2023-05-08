@@ -4,6 +4,7 @@ object UploadServiceLogger {
     private var logLevel = LogLevel.Off
     private val defaultLogger = DefaultLoggerDelegate()
     private var loggerDelegate: Delegate = defaultLogger
+    private var path: String = ""
 
     internal const val NA = "N/A"
 
@@ -15,9 +16,9 @@ object UploadServiceLogger {
     }
 
     interface Delegate {
-        fun error(component: String, uploadId: String, message: String, exception: Throwable?)
-        fun debug(component: String, uploadId: String, message: String)
-        fun info(component: String, uploadId: String, message: String)
+        fun error(component: String, uploadId: String, message: String, exception: Throwable?, path: String)
+        fun debug(component: String, uploadId: String, message: String, path: String)
+        fun info(component: String, uploadId: String, message: String, path: String)
     }
 
     @Synchronized
@@ -44,16 +45,16 @@ object UploadServiceLogger {
     @JvmOverloads
     @JvmStatic
     fun error(component: String, uploadId: String, exception: Throwable? = null, message: () -> String) {
-        loggerWithLevel(LogLevel.Error)?.error(component, uploadId, message(), exception)
+        loggerWithLevel(LogLevel.Error)?.error(component, uploadId, message(), exception, path)
     }
 
     @JvmStatic
     fun info(component: String, uploadId: String, message: () -> String) {
-        loggerWithLevel(LogLevel.Info)?.info(component, uploadId, message())
+        loggerWithLevel(LogLevel.Info)?.info(component, uploadId, message(), path)
     }
 
     @JvmStatic
     fun debug(component: String, uploadId: String, message: () -> String) {
-        loggerWithLevel(LogLevel.Debug)?.debug(component, uploadId, message())
+        loggerWithLevel(LogLevel.Debug)?.debug(component, uploadId, message(), path)
     }
 }
