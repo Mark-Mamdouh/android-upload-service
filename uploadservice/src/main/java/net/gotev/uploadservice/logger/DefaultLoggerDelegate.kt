@@ -12,22 +12,20 @@ class DefaultLoggerDelegate : UploadServiceLogger.Delegate {
         private const val TAG = "UploadService"
     }
 
-    override fun error(component: String, uploadId: String, message: String, exception: Throwable?, logFilePath: String) {
+    override fun error(component: String, uploadId: String, message: String, exception: Throwable?, path: String) {
         val logMessage = "$component - (uploadId: $uploadId) - $message - ${exception?.message}"
         Log.e(TAG, logMessage, exception)
-        writeLogsToFile(logMessage, logFilePath)
+        writeLogsToFile(logMessage, path)
     }
 
-    override fun debug(component: String, uploadId: String, message: String, logFilePath: String) {
+    override fun debug(component: String, uploadId: String, message: String, path: String) {
         val logMessage = "$component - (uploadId: $uploadId) - $message"
         Log.i(TAG, logMessage)
-        writeLogsToFile(logMessage, logFilePath)
     }
 
-    override fun info(component: String, uploadId: String, message: String, logFilePath: String) {
+    override fun info(component: String, uploadId: String, message: String, path: String) {
         val logMessage = "$component - (uploadId: $uploadId) - $message"
         Log.i(TAG, logMessage)
-        writeLogsToFile(logMessage, logFilePath)
     }
 
     private fun writeLogsToFile(content: String, path: String) {
