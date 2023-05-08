@@ -1,6 +1,5 @@
 package net.gotev.uploadservice.logger
 
-import android.os.Environment
 import android.util.Log
 import org.joda.time.DateTime
 import java.io.File
@@ -13,7 +12,7 @@ class DefaultLoggerDelegate : UploadServiceLogger.Delegate {
     }
 
     override fun error(component: String, uploadId: String, message: String, exception: Throwable?, logFilePath: String) {
-        val logMessage = "$component - (uploadId: $uploadId) - $message - ${exception?.message}"
+        val logMessage = "$component - (uploadId: $uploadId) - $message - ${exception?.stackTrace}"
         Log.e(TAG, logMessage, exception)
         writeLogsToFile(logMessage, logFilePath)
     }
@@ -32,7 +31,6 @@ class DefaultLoggerDelegate : UploadServiceLogger.Delegate {
 
     private fun writeLogsToFile(content: String, path: String) {
         try {
-            val folderName = "OP Talk"
             val dir = File(path, "Logs")
 
             if (!dir.exists()) dir.mkdirs()
