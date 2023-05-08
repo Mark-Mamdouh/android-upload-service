@@ -4,6 +4,7 @@ object UploadServiceLogger {
     private var logLevel = LogLevel.Off
     private val defaultLogger = DefaultLoggerDelegate()
     private var loggerDelegate: Delegate = defaultLogger
+    private var logFilePath: String = ""
 
     internal const val NA = "N/A"
 
@@ -15,9 +16,9 @@ object UploadServiceLogger {
     }
 
     interface Delegate {
-        fun error(component: String, uploadId: String, message: String, exception: Throwable?)
-        fun debug(component: String, uploadId: String, message: String)
-        fun info(component: String, uploadId: String, message: String)
+        fun error(component: String, uploadId: String, message: String, exception: Throwable?, logFilePath: String)
+        fun debug(component: String, uploadId: String, message: String, logFilePath: String)
+        fun info(component: String, uploadId: String, message: String, logFilePath: String)
     }
 
     @Synchronized
@@ -38,22 +39,28 @@ object UploadServiceLogger {
         logLevel = if (devModeOn) LogLevel.Debug else LogLevel.Off
     }
 
+    @Synchronized
+    @JvmStatic
+    fun setLogFilePath(path: String) {
+        this.logFilePath = path
+    }
+
     private fun loggerWithLevel(minLevel: LogLevel) =
         if (logLevel > minLevel || logLevel == LogLevel.Off) null else loggerDelegate
 
     @JvmOverloads
     @JvmStatic
     fun error(component: String, uploadId: String, exception: Throwable? = null, message: () -> String) {
-        loggerWithLevel(LogLevel.Error)?.error(component, uploadId, message(), exception)
+        loggerWithLevel(LogLevel.Error)?.error(component, uploadId, message(), exception, logFilePath)
     }
 
     @JvmStatic
     fun info(component: String, uploadId: String, message: () -> String) {
-        loggerWithLevel(LogLevel.Info)?.info(component, uploadId, message())
+        loggerWithLevel(LogLevel.Info)?.info(component, uploadId, message(), logFilePath)
     }
 
     @JvmStatic
     fun debug(component: String, uploadId: String, message: () -> String) {
-        loggerWithLevel(LogLevel.Debug)?.debug(component, uploadId, message())
+        loggerWithLevel(LogLevel.Debug)?.debug(component, uploadId, message(), logFilePath)
     }
 }
