@@ -124,6 +124,8 @@ class UploadService : Service() {
     private fun onConnectionLost(connected: Boolean) {
         println("AlertTask: $connected")
         if (connected.not()) {
+            val currentUploadTask = uploadTasksMap[taskList.first()]
+            currentUploadTask?.onResponseReceived(ServerResponse(code = 500, body = byteArrayOf(), headers = linkedMapOf()))
             stopForeground(true)
             stopSelf()
         }
