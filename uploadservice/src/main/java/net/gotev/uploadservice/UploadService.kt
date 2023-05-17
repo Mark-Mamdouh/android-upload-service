@@ -4,6 +4,9 @@ import android.app.Notification
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkRequest
 import android.os.IBinder
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
@@ -21,6 +24,8 @@ import java.util.TimerTask
 import java.util.concurrent.ConcurrentHashMap
 
 class UploadService : Service() {
+
+    private val connectivityManager by lazy { getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager }
 
     companion object {
         internal val TAG = UploadService::class.java.simpleName
@@ -81,6 +86,7 @@ class UploadService : Service() {
         fun stop(context: Context, forceStop: Boolean = false) = if (forceStop) {
             stopAllUploads()
             context.stopService(Intent(context, UploadService::class.java))
+
         } else {
             uploadTasksMap.isEmpty() && context.stopService(
                 Intent(
@@ -104,6 +110,17 @@ class UploadService : Service() {
 
     private val notificationActionsObserver by lazy {
         UploadServiceConfig.notificationActionsObserverFactory(this)
+    }
+
+    private val customNetworkCallback = object : ConnectivityManager.NetworkCallback() {
+        override fun onLost(network: Network) = onConnectionLost(false)
+        override fun onAvailable(network: Network) {
+            onConnectionLost(true)
+        }
+    }
+
+    private fun onConnectionLost(connected: Boolean) {
+        println("AlertTask: $connected")
     }
 
     @Synchronized
@@ -192,6 +209,7 @@ class UploadService : Service() {
 
         wakeLock = acquirePartialWakeLock(wakeLock, TAG)
         notificationActionsObserver.register()
+        connectivityManager.registerNetworkCallback(NetworkRequest.Builder().build(), customNetworkCallback)
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -256,5 +274,6 @@ class UploadService : Service() {
         uploadTasksMap.clear()
 
         UploadServiceLogger.debug(TAG, NA) { "UploadService destroyed" }
+        connectivityManager.unregisterNetworkCallback(customNetworkCallback)
     }
 }

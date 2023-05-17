@@ -206,7 +206,7 @@ abstract class UploadTask : Runnable {
      *
      * @param response response got from the server
      */
-    protected fun onResponseReceived(response: ServerResponse) {
+    fun onResponseReceived(response: ServerResponse) {
         UploadServiceLogger.debug(TAG, params.id) { "upload ${if (response.isSuccessful) "completed" else "error"}" }
 
         if (response.isSuccessful) {
