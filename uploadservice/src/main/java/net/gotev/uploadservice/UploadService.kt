@@ -17,6 +17,8 @@ import net.gotev.uploadservice.extensions.getUploadTaskCreationParameters
 import net.gotev.uploadservice.extensions.safeRelease
 import net.gotev.uploadservice.logger.UploadServiceLogger
 import net.gotev.uploadservice.logger.UploadServiceLogger.NA
+import net.gotev.uploadservice.network.HttpStack
+import net.gotev.uploadservice.network.ServerResponse
 import net.gotev.uploadservice.observer.task.BroadcastEmitter
 import net.gotev.uploadservice.observer.task.TaskCompletionNotifier
 import java.util.Timer
@@ -33,7 +35,7 @@ class UploadService : Service() {
         private const val UPLOAD_NOTIFICATION_BASE_ID = 1234 // Something unique
 
         private var notificationIncrementalId = 0
-        private val uploadTasksMap = ConcurrentHashMap<String, UploadTask>()
+        val uploadTasksMap = ConcurrentHashMap<String, UploadTask>()
 
         @Volatile
         private var foregroundUploadId: String? = null
@@ -121,6 +123,10 @@ class UploadService : Service() {
 
     private fun onConnectionLost(connected: Boolean) {
         println("AlertTask: $connected")
+        if (connected.not()) {
+            val currentUploadTask = uploadTasksMap[taskList.first()]
+            currentUploadTask?.onResponseReceived(ServerResponse(code = 500, body = byteArrayOf(), headers = linkedMapOf()))
+        }
     }
 
     @Synchronized
