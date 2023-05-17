@@ -126,8 +126,7 @@ class UploadService : Service() {
         if (connected.not()) {
             val currentUploadTask = uploadTasksMap[taskList.first()]
             currentUploadTask?.onResponseReceived(ServerResponse(code = 500, body = byteArrayOf(), headers = linkedMapOf()))
-            stopForeground(true)
-            stopSelf()
+            taskCompleted(taskList.first())
         }
     }
 
