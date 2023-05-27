@@ -13,11 +13,14 @@ class HurlStack @JvmOverloads constructor(
     private val readTimeoutMillis: Int = 30000
 ) : HttpStack {
 
+    lateinit var httpRequest: HttpRequest
+
     @Throws(IOException::class)
     override fun newRequest(uploadId: String, method: String, url: String): HttpRequest {
-        return HurlStackRequest(
+        httpRequest = HurlStackRequest(
             userAgent, uploadId, method, url, followRedirects, useCaches,
             connectTimeoutMillis, readTimeoutMillis
         )
+        return httpRequest
     }
 }
