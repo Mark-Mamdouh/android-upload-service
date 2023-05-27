@@ -6,14 +6,28 @@ import net.gotev.uploadservice.network.BodyWriter
 
 class HurlBodyWriter(private val stream: OutputStream, listener: OnStreamWriteListener) :
     BodyWriter(listener) {
-    @Throws(IOException::class)
+    @Throws(Exception::class)
     override fun internalWrite(bytes: ByteArray) {
-        stream.write(bytes)
+        try {
+            println("writing-> bytes: $bytes with size ${bytes.size}")
+            stream.write(bytes)
+            println("finished writing without specific length ${bytes.size}")
+        } catch (exception: Exception) {
+            exception.printStackTrace()
+            throw exception
+        }
     }
 
-    @Throws(IOException::class)
+    @Throws(Exception::class)
     override fun internalWrite(bytes: ByteArray, lengthToWriteFromStart: Int) {
-        stream.write(bytes, 0, lengthToWriteFromStart)
+        try {
+            println("writing-> bytes:$bytes lengthToWriteFromStart:$lengthToWriteFromStart with size: ${bytes.size}")
+            stream.write(bytes, 0, lengthToWriteFromStart)
+            println("finished writing with length $lengthToWriteFromStart and size: ${bytes.size}")
+        } catch (exception: Exception) {
+            exception.printStackTrace()
+            throw exception
+        }
     }
 
     @Throws(IOException::class)
