@@ -19,6 +19,8 @@ abstract class HttpUploadTask : UploadTask(), HttpRequest.RequestBodyDelegate,
         HttpUploadTaskParameters.createFromPersistableData(params.additionalParameters)
     }
 
+    lateinit var request: HttpRequest
+
     /**
      * Implement in subclasses to provide the expected upload in the progress notifications.
      * @return The expected size of the http request body.
@@ -44,8 +46,9 @@ abstract class HttpUploadTask : UploadTask(), HttpRequest.RequestBodyDelegate,
         setAllFilesHaveBeenSuccessfullyUploaded(false)
         totalBytes = bodyLength
 
-        val response = httpStack.newRequest(params.id, httpParams.method, params.serverUrl)
-            .setHeaders(httpParams.requestHeaders.map { it.validateAsHeader() })
+        request = httpStack.newRequest(params.id, httpParams.method, params.serverUrl)
+
+        val response = request.setHeaders(httpParams.requestHeaders.map { it.validateAsHeader() })
             .setTotalBodyBytes(totalBytes, httpParams.usesFixedLengthStreamingMode)
             .getResponse(this, this)
 
@@ -72,4 +75,6 @@ abstract class HttpUploadTask : UploadTask(), HttpRequest.RequestBodyDelegate,
     final override fun onBytesWritten(bytesWritten: Int) {
         onProgress(bytesWritten.toLong())
     }
+
+    fun closeConnection() = request.close()
 }
