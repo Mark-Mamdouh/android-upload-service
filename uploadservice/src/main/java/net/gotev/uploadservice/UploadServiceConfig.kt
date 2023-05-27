@@ -1,7 +1,9 @@
 package net.gotev.uploadservice
 
 import android.app.Application
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import net.gotev.uploadservice.data.RetryPolicyConfig
@@ -49,6 +51,15 @@ object UploadServiceConfig {
         }
     }
 
+    private val connectionReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val closeConnection = intent.getBooleanExtra("close", false)
+            //val disconnectConnection = intent.getBooleanExtra("disconnect", false)
+
+            if (closeConnection) (httpStack as HurlStack).httpRequest.close()
+        }
+    }
+
     /**
      * Initializes Upload Service with namespace and default notification channel.
      * This must be done in your application subclass onCreate method before anything else.
@@ -61,6 +72,7 @@ object UploadServiceConfig {
         this.namespace = context.packageName
         this.defaultNotificationChannel = defaultNotificationChannel
         UploadServiceLogger.setDevelopmentMode(debug)
+        context.registerReceiver(connectionReceiver, IntentFilter("closeConnection"))
     }
 
     /**
