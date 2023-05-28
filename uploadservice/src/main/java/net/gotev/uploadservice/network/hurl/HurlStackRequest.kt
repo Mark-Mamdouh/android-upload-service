@@ -36,6 +36,8 @@ class HurlStackRequest(
     }
 
     init {
+        if (networkAvailable.not()) throw IOException()
+
         UploadServiceLogger.debug(javaClass.simpleName, uploadId) {
             "creating new HttpURLConnection (uuid: $uuid)"
         }
@@ -139,5 +141,9 @@ class HurlStackRequest(
             connection.disconnect()
         } catch (ignored: Throwable) {
         }
+    }
+
+    companion object {
+        var networkAvailable = false
     }
 }
