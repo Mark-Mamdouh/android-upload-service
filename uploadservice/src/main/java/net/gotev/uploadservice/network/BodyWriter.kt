@@ -50,13 +50,9 @@ abstract class BodyWriter(private val listener: OnStreamWriteListener) : Closeab
      * @throws IOException if an error occurs while writing
      */
     fun write(bytes: ByteArray) {
-        try {
-            internalWrite(bytes)
-            flush()
-            listener.onBytesWritten(bytes.size)
-        } catch (exception: Exception) {
-            exception.printStackTrace()
-        }
+        internalWrite(bytes)
+        flush()
+        listener.onBytesWritten(bytes.size)
     }
 
     /**
@@ -67,19 +63,15 @@ abstract class BodyWriter(private val listener: OnStreamWriteListener) : Closeab
      * @throws IOException if an error occurs while writing
      */
     fun write(bytes: ByteArray, lengthToWriteFromStart: Int) {
-        try {
-            internalWrite(bytes, lengthToWriteFromStart)
-            flush()
-            listener.onBytesWritten(lengthToWriteFromStart)
-        } catch (exception: Exception) {
-            exception.printStackTrace()
-        }
+        internalWrite(bytes, lengthToWriteFromStart)
+        flush()
+        listener.onBytesWritten(lengthToWriteFromStart)
     }
 
-    @Throws(Exception::class)
+    @Throws(IOException::class)
     abstract fun internalWrite(bytes: ByteArray)
 
-    @Throws(Exception::class)
+    @Throws(IOException::class)
     abstract fun internalWrite(bytes: ByteArray, lengthToWriteFromStart: Int)
 
     /**
