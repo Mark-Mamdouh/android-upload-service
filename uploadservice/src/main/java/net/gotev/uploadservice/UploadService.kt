@@ -2,8 +2,10 @@ package net.gotev.uploadservice
 
 import android.app.Notification
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.IBinder
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
@@ -14,6 +16,7 @@ import net.gotev.uploadservice.extensions.getUploadTaskCreationParameters
 import net.gotev.uploadservice.extensions.safeRelease
 import net.gotev.uploadservice.logger.UploadServiceLogger
 import net.gotev.uploadservice.logger.UploadServiceLogger.NA
+import net.gotev.uploadservice.network.hurl.HurlStack
 import net.gotev.uploadservice.observer.task.BroadcastEmitter
 import net.gotev.uploadservice.observer.task.TaskCompletionNotifier
 import java.util.Timer
@@ -187,11 +190,19 @@ class UploadService : Service() {
         }
     }
 
+    private val connectionReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val closeConnection = intent.getBooleanExtra("close", false)
+            if (closeConnection) (UploadServiceConfig.httpStack as HurlStack).httpRequest.close()
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
 
         wakeLock = acquirePartialWakeLock(wakeLock, TAG)
         notificationActionsObserver.register()
+        registerReceiver(connectionReceiver, IntentFilter("closeConnection"))
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -255,6 +266,7 @@ class UploadService : Service() {
 
         uploadTasksMap.clear()
 
+        unregisterReceiver(connectionReceiver)
         UploadServiceLogger.debug(TAG, NA) { "UploadService destroyed" }
     }
 }

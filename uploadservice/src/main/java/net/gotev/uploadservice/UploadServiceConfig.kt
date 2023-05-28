@@ -51,13 +51,6 @@ object UploadServiceConfig {
         }
     }
 
-    private val connectionReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val closeConnection = intent.getBooleanExtra("close", false)
-            if (closeConnection) (httpStack as HurlStack).httpRequest.close()
-        }
-    }
-
     /**
      * Initializes Upload Service with namespace and default notification channel.
      * This must be done in your application subclass onCreate method before anything else.
@@ -71,7 +64,6 @@ object UploadServiceConfig {
         this.defaultNotificationChannel = defaultNotificationChannel
         UploadServiceLogger.setDevelopmentMode(debug)
         UploadServiceLogger.setLogFilePath(logFilePath)
-        context.registerReceiver(connectionReceiver, IntentFilter("closeConnection"))
     }
 
     /**
